@@ -1,217 +1,280 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-function App() {
-  const [compoundWord, setCompoundWord] = useState('');
-  const [compoundTranslation, setCompoundTranslation] = useState('');
-  const [compoundPronunciation, setCompoundPronunciation] = useState(''); // New state for pronunciation
-  const [subWords, setSubWords] = useState([{ word: '', translation: '', blocker: 'stays', originalWord: '' }]);
-  const [gender, setGender] = useState('');
+// Speech synthesis function for pronunciation
+const readAloud = (text, slow = false) => {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "de-DE"; // Set German language
+  utterance.rate = slow ? 0.7 : 1; // Adjust speed based on 'slow' parameter
+  speechSynthesis.cancel(); // Cancel any ongoing speech
+  speechSynthesis.speak(utterance); // Speak the text
+};
+
+const App = () => {
+  // State variables for compound word input, translation, sub-words, saved words, and editing index
+  const [compoundWord, setCompoundWord] = useState("");
+  const [translation, setTranslation] = useState("");
+  const [subWords, setSubWords] = useState([]);
   const [savedWords, setSavedWords] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
 
+  // Adds a new blank sub-word object to the 'subWords' array
   const addSubWord = () => {
-    setSubWords([...subWords, { word: '', translation: '', blocker: 'stays', originalWord: '' }]);
+    setSubWords([
+      ...subWords,
+      { word: "", translation: "", stays: true, original: "", gender: "" },
+    ]);
   };
 
-  const handleSubWordChange = (index, e) => {
+  // Updates the value of a specific field in a sub-word based on index
+  const updateSubWord = (index, field, value) => {
     const newSubWords = [...subWords];
-    newSubWords[index].word = e.target.value;
+    newSubWords[index][field] = value;
     setSubWords(newSubWords);
   };
 
-  const handleTranslationChange = (index, e) => {
-    const newSubWords = [...subWords];
-    newSubWords[index].translation = e.target.value;
-    setSubWords(newSubWords);
+  // Removes a sub-word from the 'subWords' array based on index
+  const deleteSubWord = (index) => {
+    setSubWords(subWords.filter((_, i) => i !== index));
   };
 
-  const handleBlockerChange = (index, e) => {
-    const newSubWords = [...subWords];
-    newSubWords[index].blocker = e.target.value;
-    newSubWords[index].originalWord = ''; // Reset original word when changing blocker type
-    setSubWords(newSubWords);
-  };
-
-  const handleOriginalWordChange = (index, e) => {
-    const newSubWords = [...subWords];
-    newSubWords[index].originalWord = e.target.value;
-    setSubWords(newSubWords);
-  };
-
+  // Saves the current compound word and its details to the saved words list
   const saveCompoundWord = () => {
     const newWord = {
-      fullWord: compoundWord,
-      translation: compoundTranslation,
-      pronunciation: compoundPronunciation, // Include pronunciation
-      subWords: subWords,
-      gender,
+      compoundWord,
+      translation,
+      subWords,
     };
-    setSavedWords([...savedWords, newWord]);
-    resetForm();
+
+    // If in edit mode, update the existing entry; otherwise, add a new entry
+    if (editingIndex !== null) {
+      const updatedWords = [...savedWords];
+      updatedWords[editingIndex] = newWord;
+      setSavedWords(updatedWords);
+      setEditingIndex(null); // Exit edit mode
+    } else {
+      setSavedWords([newWord, ...savedWords]); // Prepend new word to saved words
+    }
+
+    // Clear input fields
+    setCompoundWord("");
+    setTranslation("");
+    setSubWords([]);
   };
 
-  const resetForm = () => {
-    setCompoundWord('');
-    setCompoundTranslation('');
-    setCompoundPronunciation(''); // Reset pronunciation field
-    setSubWords([{ word: '', translation: '', blocker: 'stays', originalWord: '' }]);
-    setGender('');
-  };
-
+  // Deletes a saved compound word based on index
   const deleteWord = (index) => {
-    const newSavedWords = savedWords.filter((_, i) => i !== index);
-    setSavedWords(newSavedWords);
+    setSavedWords(savedWords.filter((_, i) => i !== index));
   };
 
+  // Loads a saved compound word into the form for editing
   const editWord = (index) => {
     const wordToEdit = savedWords[index];
-    setCompoundWord(wordToEdit.fullWord);
-    setCompoundTranslation(wordToEdit.translation);
-    setCompoundPronunciation(wordToEdit.pronunciation); // Set pronunciation for editing
+    setCompoundWord(wordToEdit.compoundWord);
+    setTranslation(wordToEdit.translation);
     setSubWords(wordToEdit.subWords);
-    setGender(wordToEdit.gender);
-    deleteWord(index); // Remove the word from saved words after loading it for editing
+    setEditingIndex(index);
   };
 
-  const deleteSubWord = (index) => {
-    const newSubWords = subWords.filter((_, i) => i !== index);
-    setSubWords(newSubWords);
-  };
-
-  const readWords = (text, rate = 1) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'de-DE'; // Set the language to German
-    utterance.rate = rate; // Set the speech rate
-    window.speechSynthesis.speak(utterance);
+  // Adjusts input width to fit content dynamically
+  const autoResizeInput = (input) => {
+    input.style.width = `${input.scrollWidth}px`;
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create German Compound Words</h1>
+    <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">German Compound Word Builder</h1>
 
-      <div className="mb-4">
-        <label className="block mb-2">Full Compound Word:</label>
-        <input
-          type="text"
-          value={compoundWord}
-          onChange={(e) => setCompoundWord(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full mb-2"
-        />
-        <label className="block mb-2">English Translation:</label>
-        <input
-          type="text"
-          value={compoundTranslation}
-          onChange={(e) => setCompoundTranslation(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full mb-2"
-        />
-        <label className="block mb-2">Pronunciation:</label> {/* New input for pronunciation */}
-        <input
-          type="text"
-          value={compoundPronunciation}
-          onChange={(e) => setCompoundPronunciation(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full"
-        />
+      {/* Disclaimer */}
+      <div className="absolute top-4 right-4 text-sm text-gray-600">
+        If text-to-speech isn't working, delete browsing data (cached images and files).
       </div>
 
-      <h2 className="text-lg font-semibold mb-2">Sub-Words</h2>
-      {subWords.map((subWord, index) => (
-        <div key={index} className="flex items-center mb-4">
-          <input
-            type="text"
-            value={subWord.word}
-            onChange={(e) => handleSubWordChange(index, e)}
-            placeholder="Sub-word"
-            className="border border-gray-300 rounded-md p-2 w-1/4 mr-2"
-          />
-          <input
-            type="text"
-            value={subWord.translation}
-            onChange={(e) => handleTranslationChange(index, e)}
-            placeholder="Translation"
-            className="border border-gray-300 rounded-md p-2 w-1/4 mr-2"
-          />
-          <select
-            value={subWord.blocker}
-            onChange={(e) => handleBlockerChange(index, e)}
-            className="border border-gray-300 rounded-md p-2 mr-2"
-          >
-            <option value="stays">Stays</option>
-            <option value="changed">Changed</option>
-          </select>
-          {subWord.blocker === 'changed' && (
-            <input
-              type="text"
-              value={subWord.originalWord}
-              onChange={(e) => handleOriginalWordChange(index, e)}
-              placeholder="Original Word"
-              className="border border-gray-300 rounded-md p-2 w-1/4"
-            />
-          )}
-          {index === subWords.length - 1 && (
-            <select
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 ml-2"
+      {/* Compound Word Form */}
+      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h2 className="text-2xl font-semibold mb-4">Create a Compound Word</h2>
+
+        {/* Compound word input */}
+        <input
+          type="text"
+          placeholder="Compound Word"
+          className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
+          value={compoundWord}
+          onChange={(e) => setCompoundWord(e.target.value)}
+          onInput={(e) => autoResizeInput(e.target)}
+        />
+
+        {/* Translation input */}
+        <input
+          type="text"
+          placeholder="Translation"
+          className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
+          value={translation}
+          onChange={(e) => setTranslation(e.target.value)}
+          onInput={(e) => autoResizeInput(e.target)}
+        />
+
+        {/* Sub-words section */}
+        <div className="mb-4">
+          <h3 className="font-semibold">Sub-Words</h3>
+          <div className="flex flex-wrap mb-2">
+            {subWords.map((subWord, index) => (
+              <div key={index} className="flex flex-col items-start border p-4 m-2 rounded-lg bg-gray-50 shadow-md">
+                {/* Sub-word and translation inputs */}
+                <input
+                  type="text"
+                  placeholder="Sub-Word"
+                  className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
+                  value={subWord.word}
+                  onChange={(e) => updateSubWord(index, "word", e.target.value)}
+                  onInput={(e) => autoResizeInput(e.target)}
+                />
+                <input
+                  type="text"
+                  placeholder="Translation"
+                  className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
+                  value={subWord.translation}
+                  onChange={(e) => updateSubWord(index, "translation", e.target.value)}
+                  onInput={(e) => autoResizeInput(e.target)}
+                />
+
+                {/* Dropdown to select if sub-word remains the same or changes */}
+                <select
+                  className="p-3 border rounded mb-1 focus:outline-none focus:ring focus:ring-blue-300"
+                  value={subWord.stays}
+                  onChange={(e) => updateSubWord(index, "stays", e.target.value === "true")}
+                >
+                  <option value="true">Stays</option>
+                  <option value="false">Changed</option>
+                </select>
+
+                {/* Original word input if the sub-word changes */}
+                {subWord.stays === false && (
+                  <input
+                    type="text"
+                    placeholder="Original Word"
+                    className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
+                    value={subWord.original}
+                    onChange={(e) => updateSubWord(index, "original", e.target.value)}
+                    onInput={(e) => autoResizeInput(e.target)}
+                  />
+                )}
+
+                {/* Gender dropdown for the last sub-word */}
+                {index === subWords.length - 1 && (
+                  <select
+                    className="p-3 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+                    value={subWord.gender}
+                    onChange={(e) => updateSubWord(index, "gender", e.target.value)}
+                  >
+                    <option value="">Gender</option>
+                    <option value="der">Der</option>
+                    <option value="die">Die</option>
+                    <option value="das">Das</option>
+                  </select>
+                )}
+
+                {/* Delete sub-word button */}
+                <button
+                  onClick={() => deleteSubWord(index)}
+                  className="mt-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+
+            {/* Button to add a new sub-word */}
+            <button
+              onClick={addSubWord}
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
-              <option value="">Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="neutral">Neutral</option>
-            </select>
-          )}
-          <button onClick={() => deleteSubWord(index)} className="bg-red-500 text-white rounded-md p-1 ml-2">
-            Delete
-          </button>
-        </div>
-      ))}
-      <button
-        onClick={addSubWord}
-        className="bg-blue-500 text-white rounded-md p-2 mb-4"
-      >
-        Add Sub-Word
-      </button>
-
-      <button
-        onClick={saveCompoundWord}
-        className="bg-green-500 text-white rounded-md p-2 mb-4"
-      >
-        Save Compound Word
-      </button>
-
-      <h2 className="text-lg font-semibold mb-2">Saved Compound Words</h2>
-      <div className="grid grid-cols-1 gap-4">
-        {savedWords.map((word, index) => (
-          <div key={index} className="border rounded-lg p-4 shadow-md">
-            <strong>{word.fullWord}</strong> ({word.gender}) - {word.translation}<br />
-            <em>Pronunciation: {word.pronunciation}</em><br /> {/* Display pronunciation */}
-            <div className="mt-2">
-              <h3 className="font-semibold">Sub-Words:</h3>
-              <ul className="list-disc pl-5">
-                {word.subWords.map((subWord, subIndex) => (
-                  <li key={subIndex}>
-                    {subWord.word} ({subWord.translation}) {subWord.blocker === 'changed' && `- Changed from: ${subWord.originalWord}`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="mt-2">
-              <button onClick={() => readWords(word.fullWord)} className="bg-blue-500 text-white rounded-md p-1 mr-2">
-                Read Word
-              </button>
-              <button onClick={() => readWords(word.fullWord, 0.5)} className="bg-blue-300 text-white rounded-md p-1 mr-2">
-                Read Slower
-              </button>
-              <button onClick={() => editWord(index)} className="bg-yellow-500 text-white rounded-md p-1 mr-2">
-                Edit
-              </button>
-              <button onClick={() => deleteWord(index)} className="bg-red-500 text-white rounded-md p-1">
-                Delete
-              </button>
-            </div>
+              ➕
+            </button>
           </div>
-        ))}
+        </div>
+
+        {/* Save or update compound word button */}
+        <button
+          onClick={saveCompoundWord}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          {editingIndex !== null ? "💾 Update" : "💾 Save"}
+        </button>
+      </div>
+
+      {/* Display of saved compound words */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Saved Compound Words</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {savedWords.map((word, index) => {
+            const lastSubWord = word.subWords[word.subWords.length - 1];
+            const gender = lastSubWord ? lastSubWord.gender : "";
+
+            return (
+              <div key={index} className="bg-white p-4 rounded-lg shadow-lg flex flex-col">
+                <div className="flex-grow">
+                  {/* Compound word display with gender */}
+                  <h3 className="font-bold text-lg break-words">
+                    {word.compoundWord} {gender && <span className="text-gray-500">({gender})</span>}
+                  </h3>
+                  <p>Translation: {word.translation}</p>
+
+                  {/* Sub-word details */}
+                  <div className="mt-2">
+                    <h4 className="font-semibold">Sub-Words</h4>
+                    <div className="flex flex-wrap space-x-2">
+                      {word.subWords.map((subWord, i) => (
+                        <div key={i} className="flex flex-col items-start border p-2 rounded bg-gray-50 shadow-md">
+                          <p
+                            className="cursor-pointer hover:text-blue-500"
+                            onClick={() => readAloud(subWord.word)}
+                          >
+                            {subWord.word}
+                          </p>
+                          <p>Translation: {subWord.translation}</p>
+                          {!subWord.stays && (
+                            <p>Changed from: {subWord.original}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buttons for editing, deleting, and reading aloud the compound word */}
+                <div className="flex space-x-2 mt-2">
+                  <button
+                    onClick={() => editWord(index)}
+                    className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => readAloud(word.compoundWord)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    🔊
+                  </button>
+                  <button
+                    onClick={() => readAloud(word.compoundWord, true)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    🔊↘️
+                  </button>
+                  <button
+                    onClick={() => deleteWord(index)}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default App;
