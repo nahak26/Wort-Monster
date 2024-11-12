@@ -1,13 +1,23 @@
 import { supabase } from "../lib/dbClient.js";
 
-export async function upsertUser(name, email, picture) {
-    const { data, error } = await supabase.from("users")
-        .upsert({
-        name,
-        email,
-        picture,
-        }, { onConflict: "email" }).select().single();
+export async function upsertUser(uid, name, email, picture) {
+    const { data, error } = await supabase
+        .from("users")
+        .upsert(
+            {
+                uid,        // Firebase UID
+                name,
+                email,
+                picture,
+            },
+            { onConflict: "email" }
+        )
+        .select()
+        .single();
 
-    if (error) return null;
+    if (error) {
+        console.error("Error upserting user:", error);
+        return null;
+    }
     return data;
 }
