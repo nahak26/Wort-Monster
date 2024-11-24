@@ -10,5 +10,20 @@ if (!supabaseUrl || !supabaseKey) {
     throw new Error("!!!Missing SUPABASE_URL or SUPABASE_KEY in root/server/.env");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
-        
+// Set up the Supabase client without the auth header initially
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+    fetch: async (input, init) => {
+        const token = await getFirebaseToken(); // Get the Firebase token dynamically
+        init.headers = { ...init.headers, Authorization: `Bearer ${token}` };
+        return fetch(input, init);
+    }
+});
+
+// Function to retrieve the current Firebase token
+async function getFirebaseToken() {
+    const user = auth.currentUser;
+    if (user) {
+        return await user.getIdToken();
+    }
+    return null;
+}

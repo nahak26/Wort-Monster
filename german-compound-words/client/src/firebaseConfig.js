@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+// Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyChh_Mor-VbJQ7aGAaomY6hl9XaPi7Kj9I",
-  authDomain: "wort-monster.firebaseapp.com",
-  projectId: "wort-monster",
-  storageBucket: "wort-monster.appspot.com",
-  messagingSenderId: "639622162800",
-  appId: "1:639622162800:web:723441ed3be049439e47b5",
-  measurementId: "G-VW0E2GD4KR"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase and Authentication
