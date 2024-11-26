@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App.js';
 import reportWebVitals from './reportWebVitals.js';
+import { UserProvider } from './context/UserContext.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 /*
@@ -41,7 +42,9 @@ export default DbTest;
 */
 root.render(
   <React.StrictMode>
-    <App />
+    <UserProvider>
+      <App />
+    </UserProvider>
   </React.StrictMode>
 );
 

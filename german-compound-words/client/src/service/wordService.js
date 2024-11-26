@@ -9,9 +9,33 @@ export const fetchAllWords = async () => {
   return await response.json();
 };
 
+// Fetch one word by ID
+export const fetchWord = async (wordId) => {
+  const response = await fetch(`${API_URL}/get/:id`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
 // Create a new word
 export const createWord = async (wordData) => {
   const response = await fetch(`${API_URL}/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(wordData),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create word: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Upsert a word
+export const upsertWord = async (wordData) => {
+  const response = await fetch(`${API_URL}/upsert`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
