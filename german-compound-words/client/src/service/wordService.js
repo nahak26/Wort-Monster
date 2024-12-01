@@ -1,10 +1,21 @@
 const API_URL = 'http://localhost:5001/api/words';
 
-// Fetch all words
-export const fetchAllWords = async () => {
+// Fetch all compound words
+export const fetchCompoundWords = async () => {
   const response = await fetch(`${API_URL}/getall`);
   if (!response.ok) {
     throw new Error(`Failed to fetch words: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch all subwords with ids
+export const fetchSubWords = async (ids) => {
+  const query = ids.join(",");
+
+  const response = await fetch(`${API_URL}/getsub?ids=${query}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch subwords: ${response.statusText}`);
   }
   return await response.json();
 };

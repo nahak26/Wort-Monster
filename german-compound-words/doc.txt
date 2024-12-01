@@ -1,0 +1,19 @@
+gender:
+    0 - masculine - der
+    1 - feminine - die
+    2 - neuter - das
+
+POS (Part Of Speech):
+     0 - Noun
+     1 - Pronoun
+     2 - Verb
+     3 - Adjective
+     4 - Adverb
+     5 - Preposition
+     6 - Conjunction
+     7 - Article
+     8 - Interjection
+     9 - Contraction
+    10 - Proper Noun
+    11 - Particle
+    12 - Numberal
