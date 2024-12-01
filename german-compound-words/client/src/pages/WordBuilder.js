@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { readAloud } from '../lib/readAloud.js';
 import { transformWord } from "../lib/wordFormatting.js";
-import { fetchAllWords, updateWord, createWord, upsertWord } from "../service/wordService.js";
+import { fetchCompoundWords, upsertWord, fetchSubWords } from "../service/wordService.js";
 
 const highlightChanges = (word, original) => {
   if (!original || word === original) {
@@ -67,15 +67,21 @@ const App = () => {
   typing in to the Compound Word bar?
   */
   // Saved compound words is still a good way to track user current work done
-  //!!! SUPER SLOW !!!
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const words = await fetchAllWords();
-        //console.log(words);
+        const words = await fetchCompoundWords();
+        //console.log("Fetched words:", words);
+        const allSubwordIds = [
+          ...new Set(words.flatMap((word) => word.sub_word_ids || []))
+        ];
+        //console.log("subwords needed:", allSubwordIds);
+        const subwords = await fetchSubWords(allSubwordIds);
+        //console.log("subwords fetched:", subwords);
         //transform all words form database format to client format
-        const transformedWords = words.map(transformWord);
-        //console.log(transformedWords);
+        const transformedWords = words.map((word) => transformWord(word, subwords));
+        
+        console.log(transformedWords);
         setSavedWords(transformedWords);
       } catch (error) {
         console.error("Failed to fetch words:", error.message);

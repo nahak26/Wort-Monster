@@ -1,5 +1,5 @@
 import express from 'express';
-import { getWord, getCompoundWords } from '../db/get_word.js';
+import { getWord, getCompoundWords, getSubWords } from '../db/get_word.js';
 import { insertWord } from '../db/insert_word.js';
 import { deleteWord } from '../db/delete_word.js';
 import { updateWord } from '../db/update_word.js';
@@ -12,6 +12,17 @@ const genderMapping = ["der", "die", "das"];
 router.get('/getall', async (req, res) => {
   try {
     const data = await getCompoundWords();
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/getsub', async (req, res) => {
+  try {
+    const { ids } = req.query;
+    const formattedIds = ids.split(",").map((id) => parseInt(id.trim(), 10));
+    const data = await getSubWords(formattedIds);
     res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -34,21 +45,7 @@ router.post(['/upsert', '/create'], async (req, res) => {
 
     //need update on pos setting
     const subWordString = subWords.map((subWord) => {
-      const { word, original, stays } = subWord;
-      if (!stays) {
-        if (original && word.startsWith(original)) {
-          //Straße+n, subword Straßen, original Straße
-          const addedSuffix = word.slice(original.length);
-          return `${original}+${addedSuffix}`;
-        } else if (original && original.startsWith(word)) {
-          //Halte-n, subword Halte, original Halten
-          const deletedSuffix = original.slice(word.length);
-          return `${word}-${deletedSuffix}`;
-        } else if (original) {
-          //Einwohner ~ Einwohnen, subword Einwohner, original Einwohnen
-          return `${word}~${original}`;
-      }
-      }
+      const { word } = subWord;
       return word;
     })
     .join(', ');
@@ -62,8 +59,8 @@ router.post(['/upsert', '/create'], async (req, res) => {
     const subWordIds = [];
     for (const subWord of subWords) {
       //console.log("subword data: ", subWord);
-      const { word, translation } = subWord;
-      const data = await upsertWord(word, null, translation, gender, 0, null);
+      const { original, translation } = subWord;
+      const data = await upsertWord(original, null, translation, gender, 0, null);
       //console.log("subword data: ", data);
       subWordIds.push(data.id);
     }

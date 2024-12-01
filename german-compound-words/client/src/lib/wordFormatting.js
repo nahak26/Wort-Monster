@@ -1,45 +1,32 @@
-//!!! SUPER SLOW !!!, need updates
-const transformSubWords = (subWordsString, word_gender) => {
-  return subWordsString.split(", ").map((subWord) => {
-    // Parse the subword format (e.g., 'Straße+n', 'halte-n', 'Stelle')
-    const stays = !subWord.includes("+") && !subWord.includes("-");
-    const changeMarker = subWord.includes('+') ? '+' : 
-                         subWord.includes('-') ? '-' : '~';
-    
-    const gender = (word_gender === 0) ? "der" : 
-                   (word_gender === 1) ? "die" :
-                   "das"; // !!! Default gender all following last subword
+const transformSubWords = (subWordsString, subWordIds, subwords) => {
+  const subWordList = subWordsString.split(", ");
+  //console.log("current subwords:", subWordList);
+  //console.log("all possible subwords:", subwords);
 
-    let word, original_word, original, suffix;
-    if (stays) {
-        word = subWord;
-        original_word = '';
-    } else if (changeMarker === '+') {
-        [original, suffix] = subWord.split("+");
-        word = original + suffix;
-        original_word = original;
-    } else if (changeMarker === '-') {
-        [original, suffix] = subWord.split("-");
-        word = original;
-        original_word = original + suffix;
-    } else {
-        [original, suffix] = subWord.split("~");
-        word = original;
-        original_word = suffix;
-    }
+  return subWordList.map((subWord, index) => {
+    const subWordId = subWordIds[index];
+    const subWordData = subwords.find((sub) => sub.id === subWordId);
+
+    const word = subWord;
+    const translation = subWordData.definition;
+    const original = subWordData.word;
+    const stays = (word === original) ? true : false;
+    const gender = subWordData?.gender === 0 ? "der" :
+                   subWordData?.gender === 1 ? "die" :
+                   subWordData?.gender === 2 ? "das" : "";
 
     return {
-      word: word, // current form
-      translation: "", // Placeholder, need to be implemented
+      word, // current form
+      translation, // Placeholder, need to be implemented
       stays,
-      original: original_word,
+      original,
       gender,
     };
   });
 };
 
-export const transformWord = (word) => ({
+export const transformWord = (word, sub_words) => ({
   compoundWord: word.word,
   translation: word.definition,
-  subWords: transformSubWords(word.sub_words, word.gender),
+  subWords: transformSubWords(word.sub_words, word.sub_word_ids, sub_words),
 });
