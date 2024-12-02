@@ -135,7 +135,7 @@ const WordBuilder = ({ wordSet, onReturn }) => {
 
     const newWord = { compoundWord, translation, subWords};
     console.log(newWord);
-    //const data = upsertWord(newWord);
+    const data = upsertWord(newWord);
 
     setSavedWords((prevSavedWords) => {
       // Check if the word is already saved
@@ -204,7 +204,7 @@ const WordBuilder = ({ wordSet, onReturn }) => {
 
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">{title}</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">German Compound Word Builder</h1>
 
       {/* Compound Word Form */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
@@ -317,12 +317,7 @@ const WordBuilder = ({ wordSet, onReturn }) => {
       {/* Display of saved compound words */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Saved Compound Words</h2>
-        <button
-          onClick={handleSaveWordSet}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Save Word Set
-        </button>
+
         {/* Speech Speed Control */}
         <div className="my-4">
           <label className="mr-2">Speech Speed:</label>

@@ -7,7 +7,6 @@ const WordSetManager = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState(""); // Search bar input
   const [searchResults, setSearchResults] = useState([]); // Results of public word set search
   const [selectedWordSet, setSelectedWordSet] = useState(null); // Tracks selected word set
-  const [isEditing, setIsEditing] = useState(false); // Tracks whether a set is being edited or created
 
   // Load saved word sets on mount
   useEffect(() => {
@@ -45,27 +44,7 @@ const WordSetManager = ({ user }) => {
 
   // Open an existing word set
   const handleEditWordSet = (wordSet) => {
-    setIsEditing(true); // Mark as editing
     setSelectedWordSet(wordSet); // Pass the word set to WordBuilder
-  };
-
-  // Save a word set (new or updated)
-  const handleSaveWordSet = async (updatedSet) => {
-    try {
-      if (isEditing) {
-        // Update an existing set
-        setWordSets((prev) =>
-          prev.map((set) => (set.id === updatedSet.id ? updatedSet : set))
-        );
-      } else {
-        // Create a new set
-        const newSet = await createWordSet(user.uid, updatedSet.name);
-        setWordSets((prev) => [...prev, { ...newSet, words: updatedSet.words }]);
-      }
-      setSelectedWordSet(null); // Return to manager
-    } catch (error) {
-      console.error("Failed to save word set:", error.message);
-    }
   };
 
   // Return to WordSetManager from WordBuilder
@@ -73,16 +52,9 @@ const WordSetManager = ({ user }) => {
     setSelectedWordSet(null);
   };
 
-  // Render WordBuilder if a word set is selected
+  // If a word set is selected, render WordBuilder
   if (selectedWordSet) {
-    return (
-      <WordBuilder
-        wordSet={selectedWordSet}
-        onReturn={handleReturnToManager}
-        onSave={handleSaveWordSet}
-        isEditing={isEditing}
-      />
-    );
+    return <WordBuilder wordSet={selectedWordSet} onReturn={handleReturnToManager} />;
   }
 
   return (
