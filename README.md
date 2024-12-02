@@ -1,6 +1,6 @@
 # WORT-MONSTER
 
-Trumans Branch
+Trumans Branch, for certain Yiming's version
 
 ## Getting started
 
