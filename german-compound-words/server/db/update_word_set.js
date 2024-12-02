@@ -1,18 +1,18 @@
 import { supabase } from "../lib/dbClient.js";
 
-export async function upsertWordSet(id, name, words) {
+export async function updateWordSet(id, name, words) {
   const { data, error } = await supabase
     .from("word_sets")
-    .upsert(
+    .update(
       {
         id,
         name,
         words,
-      },
-      { onConflict: "id" },
+      }
     )
-    .select()
-    .single();
+    .eq("id", id)
+    .select("*");
+
   if (error) {
     console.error("Error upserting word set:", error);
     return null;
