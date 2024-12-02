@@ -35,7 +35,13 @@ const WordSetManager = ({ user }) => {
   // Create a new word set
   const handleCreateWordSet = async () => {
     try {
-      const setData = { name: "New Word Set", id: user.id}; // Default name with user ID
+      const setName = prompt("Enter the name for your Word Set:");
+      // Validate the input
+      if (!setName || !setName.trim()) {
+        alert("Word Set name cannot be empty.");
+        return;
+      }
+      const setData = { name: setName, id: user.id}; // Default name with user ID
       const newSet = await createWordSet(setData);
       console.log("new word set created:", newSet);
       setSelectedWordSet(newSet); // Open the new word set in WordBuilder
@@ -48,6 +54,49 @@ const WordSetManager = ({ user }) => {
   const handleEditWordSet = (wordSet) => {
     setSelectedWordSet(wordSet); // Pass the word set to WordBuilder
   };
+
+  const handleEditWordSetName = (wordSetId) => {
+    // Prompt user for the new word set name
+    const newName = prompt("Enter the new name for your Word Set:");
+  
+    // Validate the input
+    if (!newName || !newName.trim()) {
+      alert("Word Set name cannot be empty.");
+      return;
+    }
+  
+    // Update the state immutably
+    setWordSets((prevWordSets) =>
+      prevWordSets.map((wordSet) =>
+        wordSet.id === wordSetId
+          ? { ...wordSet, name: newName.trim() }
+          : wordSet
+      )
+    );
+  };  
+
+  // Add this function inside WordSetManager
+const handleDeleteWordSet = (wordSetId) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this Word Set? This action cannot be undone."
+  );
+
+  if (confirmDelete) {
+    // Update state to remove the word set
+    setWordSets((prevWordSets) =>
+      prevWordSets.filter((wordSet) => wordSet.id !== wordSetId)
+    );
+
+    // Optionally, make a call to your backend to delete the word set
+    updateWordSet(wordSetId)
+      .then(() => {
+        console.log(`Word Set with ID ${wordSetId} deleted successfully.`);
+      })
+      .catch((error) => {
+        console.error("Failed to delete Word Set:", error.message);
+      });
+  }
+};
 
   // Return to WordSetManager from WordBuilder
   const handleReturnToManager = () => {
@@ -121,13 +170,32 @@ const WordSetManager = ({ user }) => {
             key={set.id}
             className="bg-white p-4 rounded-lg shadow-lg flex flex-col"
           >
-            <h3 className="font-bold text-lg break-words">{set.name}</h3>
-            <button
-              onClick={() => handleEditWordSet(set)}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            <span
+              className="cursor-pointer hover:underline"
+              onClick={() => handleEditWordSetName(set.id)}
             >
-              Edit
-            </button>
+              <h3 className="font-bold text-lg break-words">{set.name}</h3>
+            </span>
+            <div className="flex space-x-2 mt-2">
+              <button
+                onClick={() => handleEditWordSet(set)}
+                className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded"
+              >
+                ✏️
+              </button>
+              <button
+                onClick={() => handleEditWordSetName(set.id)}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                📝 Name
+              </button>
+              <button
+                onClick={() => handleDeleteWordSet(set.id)}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
         ))}
       </div>
