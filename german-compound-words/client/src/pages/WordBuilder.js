@@ -53,7 +53,8 @@ const highlightChanges = (word, original) => {
   return <>{result}</>;
 };
 
-const WordBuilder = () => {
+const WordBuilder = ({ wordSet = {}, onReturn, onSave, isEditing }) => {
+  const [title, setTitle] = useState(wordSet.name || "German Compound Word Builder");
   const [compoundWord, setCompoundWord] = useState(""); // Stores the main compound word being created/edited
   const [translation, setTranslation] = useState(""); // Translation of the compound word
   const [subWords, setSubWords] = useState([]); // Array of sub-words forming the compound word
@@ -117,6 +118,26 @@ const WordBuilder = () => {
     console.log("current user:", user);
   }, [user, setUser]);
 
+  useEffect(() => {
+    if (!isEditing) {
+      const name = prompt("Enter the name of the new Word Set:");
+      if (name) {
+        setTitle(name);
+      } else {
+        setTitle("Untitled Word Set");
+      }
+    }
+  }, [isEditing]);
+
+  const handleSaveWordSet = () => {
+    if (onSave) {
+      onSave({ title, compoundWords: savedWords });
+      onReturn();
+    } else {
+      console.error("Save function not provided");
+    }
+  };
+
   // Feature:  Hover over sub-word shows sub-word in full compound word section
   const highlightCompoundWord = (compoundWord, subWord, isHovered) => {
     if (!subWord || !isHovered) return compoundWord;
@@ -157,7 +178,7 @@ const WordBuilder = () => {
 
     const newWord = { compoundWord, translation, subWords};
     console.log(newWord);
-    const data = upsertWord(newWord);
+    //const data = upsertWord(newWord);
 
     setSavedWords((prevSavedWords) => {
       // Check if the word is already saved
@@ -226,7 +247,7 @@ const WordBuilder = () => {
 
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">German Compound Word Builder</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">{title}</h1>
 
       {/* Compound Word Form */}
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
@@ -339,7 +360,12 @@ const WordBuilder = () => {
       {/* Display of saved compound words */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Saved Compound Words</h2>
-
+        <button
+          onClick={handleSaveWordSet}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Save Word Set
+        </button>
         {/* Speech Speed Control */}
         <div className="my-4">
           <label className="mr-2">Speech Speed:</label>

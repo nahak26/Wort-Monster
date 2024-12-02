@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
-import { fetchWordSets, createWordSet, searchPublicWordSets } from "../service/wordSetService.js";
+import {
+  fetchWordSets,
+  createWordSet,
+  searchPublicWordSets,
+} from "../service/wordSetService.js";
 
 const WordSetManager = ({ user }) => {
   const [wordSets, setWordSets] = useState([]); // Stores saved word sets
   const [searchQuery, setSearchQuery] = useState(""); // Search bar input
   const [searchResults, setSearchResults] = useState([]); // Results of public word set search
   const [selectedWordSet, setSelectedWordSet] = useState(null); // Tracks selected word set
+  const [isEditing, setIsEditing] = useState(false); // Tracks whether a set is being edited or created
 
   // Load saved word sets on mount
   useEffect(() => {
     const loadWordSets = async () => {
       try {
-        const sets = await fetchWordSets(user.uid); // Pass user ID to fetch user's sets
+        const sets = await fetchWordSets(user.uid); 
+        console.log("Fetched word sets:", sets); // Debugging log
         setWordSets(sets);
       } catch (error) {
         console.error("Failed to fetch word sets:", error.message);
@@ -33,17 +39,36 @@ const WordSetManager = ({ user }) => {
 
   // Create a new word set
   const handleCreateWordSet = async () => {
-    try {
-      const newSet = await createWordSet(user.uid, "New Word Set"); // Default name with user ID
-      setSelectedWordSet(newSet); // Open the new word set in WordBuilder
-    } catch (error) {
-      console.error("Failed to create word set:", error.message);
-    }
+    setIsEditing(false); // Mark as a new word set
+    setSelectedWordSet({
+      name: "New Word Set",
+      words: [],
+    }); // Pass a blank set to WordBuilder
   };
 
   // Open an existing word set
   const handleEditWordSet = (wordSet) => {
+    setIsEditing(true); // Mark as editing
     setSelectedWordSet(wordSet); // Pass the word set to WordBuilder
+  };
+
+  // Save a word set (new or updated)
+  const handleSaveWordSet = async (updatedSet) => {
+    try {
+      if (isEditing) {
+        // Update an existing set
+        setWordSets((prev) =>
+          prev.map((set) => (set.id === updatedSet.id ? updatedSet : set))
+        );
+      } else {
+        // Create a new set
+        const newSet = await createWordSet(user.uid, updatedSet.name);
+        setWordSets((prev) => [...prev, { ...newSet, words: updatedSet.words }]);
+      }
+      setSelectedWordSet(null); // Return to manager
+    } catch (error) {
+      console.error("Failed to save word set:", error.message);
+    }
   };
 
   // Return to WordSetManager from WordBuilder
@@ -51,9 +76,16 @@ const WordSetManager = ({ user }) => {
     setSelectedWordSet(null);
   };
 
-  // If a word set is selected, render WordBuilder
+  // Render WordBuilder if a word set is selected
   if (selectedWordSet) {
-    return <WordBuilder wordSet={selectedWordSet} onReturn={handleReturnToManager} />;
+    return (
+      <WordBuilder
+        wordSet={selectedWordSet}
+        onReturn={handleReturnToManager}
+        onSave={handleSaveWordSet}
+        isEditing={isEditing}
+      />
+    );
   }
 
   return (
