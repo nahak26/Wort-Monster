@@ -16,8 +16,8 @@ const transformSubWords = (subWordsString, subWordIds, subwords) => {
                    subWordData?.gender === 2 ? "das" : "";
 
     return {
-      word, // current form
-      translation, // Placeholder, need to be implemented
+      word,
+      translation,
       stays,
       original,
       gender,
@@ -26,7 +26,9 @@ const transformSubWords = (subWordsString, subWordIds, subwords) => {
 };
 
 export const transformWord = (word, sub_words) => ({
+  id: word.id,
   compoundWord: word.word,
   translation: word.definition,
   subWords: transformSubWords(word.sub_words, word.sub_word_ids, sub_words),
+  owner: word.owner,
 });

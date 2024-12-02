@@ -1,11 +1,10 @@
 import { supabase } from "../lib/dbClient.js";
 
-export async function deleteWord(uid, word) {
+export async function deleteWord(wordId) {
     const { error } = await supabase
         .from("dictionary")
         .delete()
-        .eq("word", word)
-        .eq("user_uid", uid);  // Ensure the deletion is restricted to the user's UID
+        .eq("id", wordId)
 
     if (error) {
         console.error("Error deleting word:", error);
