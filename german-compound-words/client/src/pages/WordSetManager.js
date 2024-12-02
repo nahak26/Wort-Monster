@@ -7,6 +7,7 @@ const WordSetManager = ({ user }) => {
   const [searchQuery, setSearchQuery] = useState(""); // Search bar input
   const [searchResults, setSearchResults] = useState([]); // Results of public word set search
   const [selectedWordSet, setSelectedWordSet] = useState(null); // Tracks selected word set
+  const [searchFilter, setSearchFilter] = useState("name");
 
   // Load saved word sets on mount
   useEffect(() => {
@@ -25,12 +26,13 @@ const WordSetManager = ({ user }) => {
   // Handle search bar input
   const handleSearch = async () => {
     try {
-      const results = await searchPublicWordSets(searchQuery);
+      const results = await searchPublicWordSets(searchQuery, searchFilter);
       setSearchResults(results);
     } catch (error) {
       console.error("Failed to search public word sets:", error.message);
     }
   };
+  
 
   // Create a new word set
   const handleCreateWordSet = async () => {
@@ -76,31 +78,32 @@ const WordSetManager = ({ user }) => {
   };  
 
   // Add this function inside WordSetManager
-const handleDeleteWordSet = (wordSetId) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this Word Set? This action cannot be undone."
-  );
-
-  if (confirmDelete) {
-    // Update state to remove the word set
-    setWordSets((prevWordSets) =>
-      prevWordSets.filter((wordSet) => wordSet.id !== wordSetId)
+  const handleDeleteWordSet = (wordSetId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this Word Set? This action cannot be undone."
     );
 
-    // Optionally, make a call to your backend to delete the word set
-    updateWordSet(wordSetId)
-      .then(() => {
-        console.log(`Word Set with ID ${wordSetId} deleted successfully.`);
-      })
-      .catch((error) => {
-        console.error("Failed to delete Word Set:", error.message);
-      });
-  }
-};
+    if (confirmDelete) {
+      // Update state to remove the word set
+      setWordSets((prevWordSets) =>
+        prevWordSets.filter((wordSet) => wordSet.id !== wordSetId)
+      );
+
+      // Optionally, make a call to your backend to delete the word set
+      updateWordSet(wordSetId)
+        .then(() => {
+          console.log(`Word Set with ID ${wordSetId} deleted successfully.`);
+        })
+        .catch((error) => {
+          console.error("Failed to delete Word Set:", error.message);
+        });
+    }
+  };
 
   // Return to WordSetManager from WordBuilder
   const handleReturnToManager = () => {
     setSelectedWordSet(null);
+    window.location.reload(); // Refresh the page
   };
 
   // If a word set is selected, render WordBuilder
@@ -122,21 +125,37 @@ const handleDeleteWordSet = (wordSetId) => {
         </button>
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar with Filter */}
       <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search public word sets"
-          className="p-3 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button
-          onClick={handleSearch}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          🔍 Search
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Search Query Input */}
+          <input
+            type="text"
+            placeholder="Search public word sets"
+            className="p-3 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {/* Search Filter Dropdown */}
+          <select
+            className="p-3 border rounded bg-white focus:outline-none focus:ring focus:ring-blue-300"
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+          >
+            <option value="name">Set Name</option>
+            <option value="word">Includes Word</option>
+            <option value="creator">Creator</option>
+          </select>
+
+          {/* Search Button */}
+          <button
+            onClick={handleSearch}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            🔍 Search
+          </button>
+        </div>
       </div>
 
       {/* Search Results */}
