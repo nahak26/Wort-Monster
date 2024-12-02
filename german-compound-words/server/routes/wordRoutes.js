@@ -12,7 +12,7 @@ const genderMapping = ["der", "die", "das"];
 router.get('/getall', async (req, res) => {
   try {
     const data = await getAllCompoundWords();
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -23,7 +23,7 @@ router.get('/get', async (req, res) => {
     const { ids } = req.query;
     const formattedIds = ids.split(",").map((id) => parseInt(id.trim(), 10));
     const data = await getCompoundWords(formattedIds);
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -34,7 +34,7 @@ router.get('/getsub', async (req, res) => {
     const { ids } = req.query;
     const formattedIds = ids.split(",").map((id) => parseInt(id.trim(), 10));
     const data = await getSubWords(formattedIds);
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -44,7 +44,7 @@ router.get('/get/:id', async (req, res) => {
   try {
     const wordId = req.params.id;
     const data = await getWord(wordId);
-    res.status(201).json(data);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -104,7 +104,7 @@ router.put('/:id', async (req, res) => {
     const wordId = req.params.id;
     const wordData = req.body;
     const data = await updateWord(wordId, wordData.compoundWord, wordData.translation, 1, 0);
-    res.status(200).json(data);
+    res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
-import { fetchWordSets, upsertWordSet, searchPublicWordSets } from "../service/wordSetService.js";
+import { fetchWordSets, createWordSet, updateWordSet, searchPublicWordSets } from "../service/wordSetService.js";
 
 const WordSetManager = ({ user }) => {
   const [wordSets, setWordSets] = useState([]); // Stores saved word sets
@@ -35,7 +35,9 @@ const WordSetManager = ({ user }) => {
   // Create a new word set
   const handleCreateWordSet = async () => {
     try {
-      const newSet = await upsertWordSet(user.uid, "New Word Set"); // Default name with user ID
+      const setData = { name: "New Word Set", id: user.id}; // Default name with user ID
+      const newSet = await createWordSet(setData);
+      console.log("new word set created:", newSet);
       setSelectedWordSet(newSet); // Open the new word set in WordBuilder
     } catch (error) {
       console.error("Failed to create word set:", error.message);
