@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals.js';
 import { UserProvider } from './context/UserContext.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-/*
+
 root.render(
   <React.StrictMode>
     <UserProvider>
@@ -14,12 +14,14 @@ root.render(
     </UserProvider>
   </React.StrictMode>
 );
-*/
+
+/*
 root.render(
   <UserProvider>
     <App />
   </UserProvider>
 );
+*/
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals

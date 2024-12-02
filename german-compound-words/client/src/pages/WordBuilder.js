@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { readAloud } from '../lib/readAloud.js';
 import { transformWord } from "../lib/wordFormatting.js";
 import { fetchCompoundWords, upsertWord, fetchSubWords, deleteWord } from "../service/wordService.js";
-import { userCheck, userLogin } from "../service/userService.js"
 import { useUser } from "../context/UserContext.js";
 
 const highlightChanges = (word, original) => {
@@ -53,7 +52,7 @@ const highlightChanges = (word, original) => {
   return <>{result}</>;
 };
 
-const WordBuilder = () => {
+const WordBuilder = ({ wordSet, onReturn }) => {
   const [compoundWord, setCompoundWord] = useState(""); // Stores the main compound word being created/edited
   const [translation, setTranslation] = useState(""); // Translation of the compound word
   const [subWords, setSubWords] = useState([]); // Array of sub-words forming the compound word
@@ -63,7 +62,7 @@ const WordBuilder = () => {
   const [speechSpeed, setSpeechSpeed] = useState(1); // Speed for text-to-speech playback
   const [highlightedSubWord, setHighlightedSubWord] = useState(null); // Sub-word to highlight in the compound word
   const [hoveredWordIndex, setHoveredWordIndex] = useState(null); // Tracks the index of the hovered compound word
-  const {user, setUser} = useUser();
+  const { user } = useUser();
 
   //fetch all compound words from database
   /*should we display all?
@@ -74,7 +73,8 @@ const WordBuilder = () => {
   useEffect(() => {
     const loadWords = async () => {
       try {
-        const words = await fetchCompoundWords();
+        console.log("current word set:", wordSet);
+        const words = await fetchCompoundWords(wordSet.words);
         //console.log("Fetched words:", words);
         const allSubwordIds = [
           ...new Set(words.flatMap((word) => word.sub_word_ids || []))
@@ -94,28 +94,6 @@ const WordBuilder = () => {
   
     loadWords();
   }, []);
-
-  //User context validation
-  useEffect(() => {
-    const validateUser = async () => {
-      if (!user?.id && user?.firebaseUid) {
-        console.log("Validating user...");
-        const response = await userCheck(user.firebaseUid);
-        if (response?.id) {
-          setUser({ ...user, id: response.id });
-        } else {
-          console.log("current user id not found, appending user data");
-          const { firebaseUid: uid, name, email, picture} = user;
-          const newUserData = await userLogin({uid, name, email, picture});
-          console.log("response:", newUserData);
-          setUser({ ...user, id: newUserData.id });
-        }
-      }
-    };
-
-    validateUser();
-    console.log("current user:", user);
-  }, [user, setUser]);
 
   // Feature:  Hover over sub-word shows sub-word in full compound word section
   const highlightCompoundWord = (compoundWord, subWord, isHovered) => {

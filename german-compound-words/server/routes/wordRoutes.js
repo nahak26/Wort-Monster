@@ -1,5 +1,5 @@
 import express from 'express';
-import { getWord, getCompoundWords, getSubWords } from '../db/get_word.js';
+import { getWord, getAllCompoundWords, getCompoundWords, getSubWords } from '../db/get_word.js';
 import { insertWord } from '../db/insert_word.js';
 import { deleteWord } from '../db/delete_word.js';
 import { updateWord } from '../db/update_word.js';
@@ -11,7 +11,18 @@ const genderMapping = ["der", "die", "das"];
 
 router.get('/getall', async (req, res) => {
   try {
-    const data = await getCompoundWords();
+    const data = await getAllCompoundWords();
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/get', async (req, res) => {
+  try {
+    const { ids } = req.query;
+    const formattedIds = ids.split(",").map((id) => parseInt(id.trim(), 10));
+    const data = await getCompoundWords(formattedIds);
     res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
