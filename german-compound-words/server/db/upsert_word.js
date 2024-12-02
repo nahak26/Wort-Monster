@@ -1,6 +1,6 @@
 import { supabase } from "../lib/dbClient.js";
 
-export async function upsertWord(word, sub_words, definition, gender, pos, sub_word_ids) {
+export async function upsertWord(word, sub_words, definition, gender, pos, sub_word_ids, owner) {
   const { data, error } = await supabase
     .from("dictionary")
     .upsert(
@@ -11,6 +11,7 @@ export async function upsertWord(word, sub_words, definition, gender, pos, sub_w
         gender,
         pos,
         sub_word_ids,
+        owner
       },
       { onConflict: "word" },
     )

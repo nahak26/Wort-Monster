@@ -22,7 +22,7 @@ export const fetchSubWords = async (ids) => {
 
 // Fetch one word by ID
 export const fetchWord = async (wordId) => {
-  const response = await fetch(`${API_URL}/get/:id`);
+  const response = await fetch(`${API_URL}/get/${wordId}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch word: ${response.statusText}`);
   }

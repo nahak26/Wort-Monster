@@ -13,16 +13,21 @@ const LoginPage = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
       const { uid, displayName: name, email, photoURL: picture} = result.user;
       const response = await userLogin({uid, name, email, picture});
+      console.log("Response from userLogin:", response);
       /* for future strict error handling
       if (!response.success) {
         console.error("Error syncing with database", response.error);
       }
       */
       //update user data in context
+
+      sessionStorage.setItem("token", token); // Store user session token
       setUser({
         id: response.id,
+        firebaseUid: response.firebase_uid,
         name,
         email,
         picture

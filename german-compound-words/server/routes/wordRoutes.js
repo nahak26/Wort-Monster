@@ -31,7 +31,7 @@ router.get('/getsub', async (req, res) => {
 
 router.get('/get/:id', async (req, res) => {
   try {
-    const { wordId } = req.params;
+    const wordId = req.params.id;
     const data = await getWord(wordId);
     res.status(201).json(data);
   } catch (error) {
@@ -41,7 +41,7 @@ router.get('/get/:id', async (req, res) => {
 
 router.post(['/upsert', '/create'], async (req, res) => {
   try {
-    const { compoundWord, translation, subWords } = req.body;
+    const { compoundWord, translation, subWords, userId } = req.body;
 
     //need update on pos setting
     const subWordString = subWords.map((subWord) => {
@@ -58,10 +58,10 @@ router.post(['/upsert', '/create'], async (req, res) => {
     //get all subword ids
     const subWordIds = [];
     for (const subWord of subWords) {
-      //console.log("subword data: ", subWord);
+      console.log("subword data: ", subWord);
       const { original, translation } = subWord;
-      const data = await upsertWord(original, null, translation, gender, 0, null);
-      //console.log("subword data: ", data);
+      const data = await upsertWord(original, null, translation, gender, 0, null, userId);
+      console.log("subword data: ", data);
       subWordIds.push(data.id);
     }
     //console.log("subword ids:", subWordIds);
@@ -71,7 +71,7 @@ router.post(['/upsert', '/create'], async (req, res) => {
     //console.log("formatted: ", formattedSubWordIds);
 
     //upsert the compound word
-    const data = await upsertWord(compoundWord, subWordString, translation, gender, 0, formattedSubWordIds); 
+    const data = await upsertWord(compoundWord, subWordString, translation, gender, 0, formattedSubWordIds, userId); 
     res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -87,7 +87,7 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-//mockup-ish need updates
+// !!!Not in use, mockup-ish need updates
 router.put('/:id', async (req, res) => {
   try {
     const wordId = req.params.id;

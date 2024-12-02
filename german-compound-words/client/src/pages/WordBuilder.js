@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { readAloud } from '../lib/readAloud.js';
 import { transformWord } from "../lib/wordFormatting.js";
-import { fetchCompoundWords, upsertWord, fetchSubWords } from "../service/wordService.js";
+import { fetchCompoundWords, upsertWord, fetchSubWords, deleteWord } from "../service/wordService.js";
+import { userCheck, userLogin } from "../service/userService.js"
+import { useUser } from "../context/UserContext.js";
 
 const highlightChanges = (word, original) => {
   if (!original || word === original) {
@@ -51,7 +53,7 @@ const highlightChanges = (word, original) => {
   return <>{result}</>;
 };
 
-const App = () => {
+const WordBuilder = () => {
   const [compoundWord, setCompoundWord] = useState(""); // Stores the main compound word being created/edited
   const [translation, setTranslation] = useState(""); // Translation of the compound word
   const [subWords, setSubWords] = useState([]); // Array of sub-words forming the compound word
@@ -61,6 +63,7 @@ const App = () => {
   const [speechSpeed, setSpeechSpeed] = useState(1); // Speed for text-to-speech playback
   const [highlightedSubWord, setHighlightedSubWord] = useState(null); // Sub-word to highlight in the compound word
   const [hoveredWordIndex, setHoveredWordIndex] = useState(null); // Tracks the index of the hovered compound word
+  const {user, setUser} = useUser();
 
   //fetch all compound words from database
   /*should we display all?
@@ -91,6 +94,28 @@ const App = () => {
   
     loadWords();
   }, []);
+
+  //User context validation
+  useEffect(() => {
+    const validateUser = async () => {
+      if (!user?.id && user?.firebaseUid) {
+        console.log("Validating user...");
+        const response = await userCheck(user.firebaseUid);
+        if (response?.id) {
+          setUser({ ...user, id: response.id });
+        } else {
+          console.log("current user id not found, appending user data");
+          const { firebaseUid: uid, name, email, picture} = user;
+          const newUserData = await userLogin({uid, name, email, picture});
+          console.log("response:", newUserData);
+          setUser({ ...user, id: newUserData.id });
+        }
+      }
+    };
+
+    validateUser();
+    console.log("current user:", user);
+  }, [user, setUser]);
 
   // Feature:  Hover over sub-word shows sub-word in full compound word section
   const highlightCompoundWord = (compoundWord, subWord, isHovered) => {
@@ -130,7 +155,7 @@ const App = () => {
       }
     }
 
-    const newWord = { compoundWord, translation, subWords };
+    const newWord = { compoundWord, translation, subWords};
     console.log(newWord);
     const data = upsertWord(newWord);
 
@@ -166,7 +191,16 @@ const App = () => {
     setSubWords(subWords.filter((_, i) => i !== index));
   };
 
-  const deleteWord = (index) => {
+  const deleteCompoundWord = async (index) => {
+    const word = savedWords[index];
+    console.log("delete word:", word);
+    console.log("current user:", user);
+    console.log("target word owner:", word.owner);
+    if (word.owner === user.id) {
+      console.log("deleting word with id:", word.id);
+      const response = await deleteWord(word.id);
+      console.log("word deleted!:", response);
+    }
     setSavedWords(savedWords.filter((_, i) => i !== index));
   };
 
@@ -382,7 +416,7 @@ const App = () => {
                   </button>
 
                   <button
-                    onClick={() => deleteWord(index)}
+                    onClick={() => deleteCompoundWord(index)}
                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     🗑️
@@ -428,4 +462,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default WordBuilder;
