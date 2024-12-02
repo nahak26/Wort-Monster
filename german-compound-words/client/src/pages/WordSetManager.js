@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
-import {
-  fetchWordSets,
-  createWordSet,
-  searchPublicWordSets,
-} from "../service/wordSetService.js";
+import { fetchWordSets, upsertWordSet, searchPublicWordSets } from "../service/wordSetService.js";
 
 const WordSetManager = ({ user }) => {
   const [wordSets, setWordSets] = useState([]); // Stores saved word sets
@@ -17,8 +13,8 @@ const WordSetManager = ({ user }) => {
   useEffect(() => {
     const loadWordSets = async () => {
       try {
-        const sets = await fetchWordSets(user.uid); 
-        console.log("Fetched word sets:", sets); // Debugging log
+        console.log("current user:", user);
+        const sets = await fetchWordSets(user.id); // Pass user ID to fetch user's sets
         setWordSets(sets);
       } catch (error) {
         console.error("Failed to fetch word sets:", error.message);
@@ -39,11 +35,12 @@ const WordSetManager = ({ user }) => {
 
   // Create a new word set
   const handleCreateWordSet = async () => {
-    setIsEditing(false); // Mark as a new word set
-    setSelectedWordSet({
-      name: "New Word Set",
-      words: [],
-    }); // Pass a blank set to WordBuilder
+    try {
+      const newSet = await upsertWordSet(user.uid, "New Word Set"); // Default name with user ID
+      setSelectedWordSet(newSet); // Open the new word set in WordBuilder
+    } catch (error) {
+      console.error("Failed to create word set:", error.message);
+    }
   };
 
   // Open an existing word set

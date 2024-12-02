@@ -9,11 +9,22 @@ export async function getAllWords() {
   return data;
 }
 
-export async function getCompoundWords() {
+export async function getAllCompoundWords() {
   const { data, error } = await supabase
     .from("dictionary")
     .select("*")
     .not("sub_words", "is", null);
+
+  if (error) return null;
+  return data;
+}
+
+export async function getCompoundWords(word_ids) {
+  const { data, error } = await supabase
+    .from("dictionary")
+    .select("*")
+    .not("sub_words", "is", null)
+    .in("id", word_ids);
 
   if (error) return null;
   return data;

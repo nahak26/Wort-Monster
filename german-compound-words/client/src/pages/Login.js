@@ -27,7 +27,7 @@ const LoginPage = () => {
       sessionStorage.setItem("token", token); // Store user session token
       setUser({
         id: response.id,
-        firebaseUid: response.firebase_uid,
+        firebaseUid: uid,
         name,
         email,
         picture

@@ -1,4 +1,4 @@
-import { supabase } from "../lib/dbClient";
+import { supabase } from "../lib/dbClient.js";
 
 export async function getSet(set_id) {
   const { data, error } = await supabase
@@ -9,7 +9,7 @@ export async function getSet(set_id) {
   return data;
 }
 
-export async function getUserSet(user_id) {
+export async function getUserSets(user_id) {
   const { data, error } = await supabase
     .from("word_sets")
     .select("*")
