@@ -52,14 +52,15 @@ const highlightChanges = (word, original) => {
 };
 
 const App = () => {
-  const [compoundWord, setCompoundWord] = useState("");
-  const [translation, setTranslation] = useState("");
-  const [subWords, setSubWords] = useState([]);
-  const [savedWords, setSavedWords] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [modalData, setModalData] = useState(null); // State for modal data
-  const [speechSpeed, setSpeechSpeed] = useState(1); // Default speed is normal
-  const [fileName, setFileName] = useState(null); // Keep track of the chosen file name
+  const [compoundWord, setCompoundWord] = useState(""); // Stores the main compound word being created/edited
+  const [translation, setTranslation] = useState(""); // Translation of the compound word
+  const [subWords, setSubWords] = useState([]); // Array of sub-words forming the compound word
+  const [savedWords, setSavedWords] = useState([]); // List of saved compound words with their sub-words
+  const [editingIndex, setEditingIndex] = useState(null); // Tracks the index of the word being edited
+  const [modalData, setModalData] = useState(null); // Data for a modal when viewing sub-word details
+  const [speechSpeed, setSpeechSpeed] = useState(1); // Speed for text-to-speech playback
+  const [highlightedSubWord, setHighlightedSubWord] = useState(null); // Sub-word to highlight in the compound word
+  const [hoveredWordIndex, setHoveredWordIndex] = useState(null); // Tracks the index of the hovered compound word
 
   //fetch all compound words from database
   /*should we display all?
@@ -91,70 +92,23 @@ const App = () => {
     loadWords();
   }, []);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === "application/json") {
-      setFileName(file.name); // Set the chosen file name
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result);
-
-          const formattedData = data.map((item) => ({
-            compoundWord: item.compoundWord,
-            translation: item.translation,
-            subWords: item.subWords.map((subWord) => ({
-              word: subWord.word,
-              translation: subWord.translation,
-              stays: subWord.stays,
-              original: subWord.original,
-              gender: subWord.gender,
-            })),
-          }));
-
-          setSavedWords((prevSavedWords) => {
-            // Filter out duplicates based on the compoundWord
-            const existingWords = new Set(
-              prevSavedWords.map((word) => word.compoundWord)
-            );
-
-            const uniqueWords = formattedData.filter(
-              (word) => !existingWords.has(word.compoundWord)
-            );
-
-            return [...prevSavedWords, ...uniqueWords];
-          });
-        } catch (error) {
-          alert("Error reading JSON file");
-        }
-      };
-      reader.readAsText(file);
-    } else {
-      alert("Please upload a valid JSON file");
-    }
-  };
-
-  const createNewFile = () => {
-    // Initialize an empty array for the new file
-    const newFileData = [];
-    const newFileName = window.prompt('Enter a name for the new file:');
-    if (!newFileName) {
-      alert('File name is required!');
-      return;
-    }
-    const blob = new Blob([JSON.stringify(newFileData, null, 2)], {
-      type: "application/json",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = newFileName + ".json"; // Correct way to append ".json" to user input
-    link.click();
-    URL.revokeObjectURL(url);
-
-    setFileName(newFileName + ".json"); // Update the UI to show the new file name
-    alert("New file has been created!");
+  // Feature:  Hover over sub-word shows sub-word in full compound word section
+  const highlightCompoundWord = (compoundWord, subWord, isHovered) => {
+    if (!subWord || !isHovered) return compoundWord;
+  
+    const lowerCompoundWord = compoundWord.toLowerCase();
+    const lowerSubWord = subWord.toLowerCase();
+  
+    const index = lowerCompoundWord.indexOf(lowerSubWord);
+    if (index === -1) return compoundWord;
+  
+    return (
+      <>
+        {compoundWord.slice(0, index)}
+        <span className="bg-yellow-200 font-bold">{subWord}</span>
+        {compoundWord.slice(index + subWord.length)}
+      </>
+    );
   };
 
   const saveCompoundWord = () => {
@@ -193,38 +147,6 @@ const App = () => {
     setCompoundWord("");
     setTranslation("");
     setSubWords([]);
-  };
-
-  const overwriteJSON = async () => {
-    if (!fileName) {
-      alert("No file selected to overwrite.");
-      return;
-    }
-
-    const uniqueData = [...new Map(
-      savedWords.map((item) => [item.compoundWord, item])
-    ).values()]; // Ensure no duplicates in the saved data
-
-    try {
-      const fileHandle = await window.showSaveFilePicker({
-        suggestedName: fileName,
-        types: [
-          {
-            description: "JSON Files",
-            accept: { "application/json": [".json"] },
-          },
-        ],
-      });
-
-      const writable = await fileHandle.createWritable();
-      await writable.write(new TextEncoder().encode(JSON.stringify(uniqueData, null, 2)));
-      await writable.close();
-
-      alert(`File "${fileName}" has been overwritten.`);
-    } catch (error) {
-      console.error("Error overwriting file:", error);
-      alert("Error saving the file.");
-    }
   };
 
   const addSubWord = () => {
@@ -383,43 +305,6 @@ const App = () => {
       {/* Display of saved compound words */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Saved Compound Words</h2>
-        <div className="mb-4">
-          {/* File Upload Section */}
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleFileUpload}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="cursor-pointer px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            📂 Choose File
-          </label>
-
-          {/* If no file selected, show the "Create New File" button */}
-          {!fileName && (
-            <button
-              onClick={createNewFile}
-              className="ml-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              ➕ Create New File
-            </button>
-          )}
-
-          {fileName && (
-            <span className="ml-4 text-gray-700">Selected File: {fileName}</span>
-          )}
-
-          <button
-            onClick={overwriteJSON}
-            className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Overwrite File
-          </button>
-        </div>
 
         {/* Speech Speed Control */}
         <div className="my-4">
@@ -439,12 +324,17 @@ const App = () => {
           {savedWords.map((word, index) => {
             const lastSubWord = word.subWords[word.subWords.length - 1];
             const gender = lastSubWord ? lastSubWord.gender : "";
+            const isHovered = index === hoveredWordIndex;
 
             return (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-lg flex flex-col">
+              <div 
+                key={index} 
+                className="bg-white p-4 rounded-lg shadow-lg flex flex-col"
+                onMouseEnter={() => setHoveredWordIndex(index)}
+                onMouseLeave={() => setHoveredWordIndex(null)}
+              >
                 <div className="flex-grow">
                   <h3 className="font-bold text-lg break-words">
-                    {word.compoundWord}
                     {gender && (
                       <span
                         className={`text-gray-500 ${gender === "der" ? "text-blue-500" : gender === "die" ? "text-pink-600" : ""
@@ -453,6 +343,8 @@ const App = () => {
                         ({gender === "das" ? "Das" : gender.charAt(0).toUpperCase() + gender.slice(1)})
                       </span>
                     )}
+                    {" "}
+                    {highlightCompoundWord(word.compoundWord, highlightedSubWord, isHovered)}
                   </h3>
                   <div className="mt-2">
                     <p>
@@ -461,6 +353,8 @@ const App = () => {
                           key={i}
                           className="cursor-pointer text-blue-600 hover:underline"
                           onClick={() => openModal(subWord)}
+                          onMouseEnter={() => setHighlightedSubWord(subWord.word)}
+                          onMouseLeave={() => setHighlightedSubWord(null)}
                         >
                           {subWord.stays === false
                             ? highlightChanges(subWord.word, subWord.original) // Apply highlighting
