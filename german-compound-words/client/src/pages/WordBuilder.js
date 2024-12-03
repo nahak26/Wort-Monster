@@ -397,25 +397,28 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
                 </div>
 
                 <div className="flex space-x-2 mt-2">
-                  <button
-                    onClick={() => editWord(index)}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                  >
-                    ✏️
-                  </button>
+                  {showForm && (
+                    <button
+                      onClick={() => editWord(index)}
+                      className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                    >
+                      ✏️
+                    </button>
+                  )}
                   <button
                     onClick={() => readAloud(word.compoundWord, speechSpeed)}
                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
                     🔊
                   </button>
-
+                  {showForm && (
                   <button
                     onClick={() => deleteCompoundWord(index)}
                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     🗑️
                   </button>
+                  )}
                 </div>
               </div>
             );
