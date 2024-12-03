@@ -136,7 +136,7 @@ const WordSetManager = ({ user }) => {
   const counterTestFunction = () => {
     setSearchResults([])
   }
-  
+
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Manage Word Sets</h1>
@@ -209,7 +209,7 @@ const WordSetManager = ({ user }) => {
       {searchResults.length > 0 && (
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4">
             {searchResults.map((set) => (
               <div
                 key={set.id}
