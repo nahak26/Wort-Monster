@@ -21,7 +21,6 @@ const WordSetManager = ({ user }) => {
       console.error('Error logging out:', error.message);
     }
   };
-  
 
   // Load saved word sets on mount
   useEffect(() => {
@@ -129,7 +128,15 @@ const WordSetManager = ({ user }) => {
   if (selectedWordSet) {
     return <WordBuilder wordSet={selectedWordSet} onReturn={handleReturnToManager} isEditing={isEditing}/>;
   }
+  // TEMPORARY
+  const testFunction = () => {
+    setSearchResults(wordSets)
+  }
 
+  const counterTestFunction = () => {
+    setSearchResults([])
+  }
+  
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Manage Word Sets</h1>
@@ -150,6 +157,19 @@ const WordSetManager = ({ user }) => {
         >
           ➕ Create New Word Set
         </button>
+        {/* TEMPORARY */}
+          <button
+            onClick={testFunction}
+            className="px-6 py-3 bg-orange-500 text-white rounded"
+          >
+            test: add sets
+          </button>
+          <button
+            onClick={counterTestFunction}
+            className="px-6 py-3 bg-red-500 text-white rounded"
+          >
+            test: remove sets
+          </button>
       </div>
 
       {/* Search Bar with Filter */}
