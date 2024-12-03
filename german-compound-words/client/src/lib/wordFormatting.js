@@ -32,3 +32,10 @@ export const transformWord = (word, sub_words) => ({
   subWords: transformSubWords(word.sub_words, word.sub_word_ids, sub_words),
   owner: word.owner,
 });
+
+export const transformSet = (set) => ({
+  id: set.id,
+  name: set.name,
+  owner: set.user_id,
+  words: set.words
+});

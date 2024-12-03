@@ -40,8 +40,10 @@ export const updateWordSet = async (set_id, setData) => {
 };
 
 // Search for public word sets
-export const searchPublicWordSets = async (query) => {
-  
-  // Replace with actual API logic
-  return [];
+export const searchPublicWordSets = async (query, filter) => {
+  const response = await fetch(`${API_URL}/getall`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch words: ${response.statusText}`);
+  }
+  return await response.json();
 };
