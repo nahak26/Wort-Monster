@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
 import { fetchWordSets, createWordSet, updateWordSet, searchPublicWordSets } from "../service/wordSetService.js";
+import { auth } from "../firebaseConfig.js";
 
 const WordSetManager = ({ user }) => {
   const [wordSets, setWordSets] = useState([]); // Stores saved word sets
@@ -10,6 +11,18 @@ const WordSetManager = ({ user }) => {
   const [searchFilter, setSearchFilter] = useState("name");
   const [isEditing, setisEditing] = useState(true);
   
+  const handleLogout = async () => {
+    try {
+      // Firebase signOut
+      await auth.signOut();
+      // Redirect or handle the logout
+      window.location.href = '/'; // Or any other page
+    } catch (error) {
+      console.error('Error logging out:', error.message);
+    }
+  };
+  
+
   // Load saved word sets on mount
   useEffect(() => {
     const loadWordSets = async () => {
@@ -120,6 +133,14 @@ const WordSetManager = ({ user }) => {
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Manage Word Sets</h1>
+
+      {/* Log out button in the top right corner */}
+      <button
+        onClick={handleLogout} // Define this function to handle the logout action
+        className="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        Log Out
+      </button>
 
       {/* Create Word Set Button */}
       <div className="mb-6 text-center">
