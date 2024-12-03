@@ -1,9 +1,28 @@
 import express from "express";
-import { getSet, getUserSets } from "../db/get_word_set.js";
+import { getAllSets, getSet, getUserSets } from "../db/get_word_set.js";
 import { insertWordSet } from "../db/insert_word_set.js"
 import { updateWordSet } from "../db/update_word_set.js";
 
 const router = express.Router();
+
+router.get("/getall", async (req, res) => {
+  try {
+    const data = await getAllSets(userId);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const setId = req.params.id;
+    const data = await getSet(setId);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.get("/user/:id", async (req, res) => {
   try {

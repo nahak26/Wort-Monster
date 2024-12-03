@@ -1,5 +1,13 @@
 import { supabase } from "../lib/dbClient.js";
 
+export async function getAllSets() {
+  const { data, error } = await supabase
+    .from("word_sets")
+    .select("*");
+  if (error) return null;
+  return data;
+}
+
 export async function getSet(set_id) {
   const { data, error } = await supabase
     .from("word_sets")

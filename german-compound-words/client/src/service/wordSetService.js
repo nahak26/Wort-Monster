@@ -1,5 +1,23 @@
 const API_URL = "http://localhost:5001/api/wordsets";
 
+// Fetc all word sets
+export const fetchAllWordSets = async () => {
+  const response = await fetch(`${API_URL}/getall`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word sets: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch word set by set id
+export const fetchWordSetsById = async (setId) => {
+  const response = await fetch(`${API_URL}/${setId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word sets: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
 // Fetch user's word sets from the database
 export const fetchWordSets = async (userId) => {
   const response = await fetch(`${API_URL}/user/${userId}`);
