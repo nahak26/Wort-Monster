@@ -8,7 +8,8 @@ const WordSetManager = ({ user }) => {
   const [searchResults, setSearchResults] = useState([]); // Results of public word set search
   const [selectedWordSet, setSelectedWordSet] = useState(null); // Tracks selected word set
   const [searchFilter, setSearchFilter] = useState("name");
-
+  const [isEditing, setisEditing] = useState(true);
+  
   // Load saved word sets on mount
   useEffect(() => {
     const loadWordSets = async () => {
@@ -56,6 +57,11 @@ const WordSetManager = ({ user }) => {
   const handleEditWordSet = (wordSet) => {
     setSelectedWordSet(wordSet); // Pass the word set to WordBuilder
   };
+
+  const handleViewWordSet = (wordSet) => {
+    setSelectedWordSet(wordSet); // Pass the word set to WordBuilder
+    setisEditing(false); // Set to View Only
+  }
 
   const handleEditWordSetName = (wordSetId) => {
     // Prompt user for the new word set name
@@ -108,7 +114,7 @@ const WordSetManager = ({ user }) => {
 
   // If a word set is selected, render WordBuilder
   if (selectedWordSet) {
-    return <WordBuilder wordSet={selectedWordSet} onReturn={handleReturnToManager} />;
+    return <WordBuilder wordSet={selectedWordSet} onReturn={handleReturnToManager} isEditing={isEditing}/>;
   }
 
   return (
@@ -170,7 +176,7 @@ const WordSetManager = ({ user }) => {
               >
                 <h3 className="font-bold text-lg break-words">{set.name}</h3>
                 <button
-                  onClick={() => handleEditWordSet(set)}
+                  onClick={() => handleViewWordSet(set)}
                   className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
                   Open

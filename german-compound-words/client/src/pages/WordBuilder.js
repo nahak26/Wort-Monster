@@ -52,7 +52,7 @@ const highlightChanges = (word, original) => {
   return <>{result}</>;
 };
 
-const WordBuilder = ({ wordSet, onReturn }) => {
+const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
   const [compoundWord, setCompoundWord] = useState(""); // Stores the main compound word being created/edited
   const [translation, setTranslation] = useState(""); // Translation of the compound word
   const [subWords, setSubWords] = useState([]); // Array of sub-words forming the compound word
@@ -62,6 +62,7 @@ const WordBuilder = ({ wordSet, onReturn }) => {
   const [speechSpeed, setSpeechSpeed] = useState(1); // Speed for text-to-speech playback
   const [highlightedSubWord, setHighlightedSubWord] = useState(null); // Sub-word to highlight in the compound word
   const [hoveredWordIndex, setHoveredWordIndex] = useState(null); // Tracks the index of the hovered compound word
+  const [showForm, setShowForm] = useState(isEditing);
   const { user } = useUser();
 
   //fetch all compound words from database
@@ -211,114 +212,119 @@ const WordBuilder = ({ wordSet, onReturn }) => {
   return (
     <div className="bg-gradient-to-br from-blue-100 to-green-200 min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-6 text-center">{wordSet.name}</h1>
-
+      
       {/* Compound Word Form */}
-      <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h2 className="text-2xl font-semibold mb-4">Create a Compound Word</h2>
+      {showForm && (
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+          <h2 className="text-2xl font-semibold mb-4">Create a Compound Word</h2>
 
-        {/* Compound word input */}
-        <input
-          type="text"
-          placeholder="Compound Word"
-          className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
-          value={compoundWord}
-          onChange={(e) => setCompoundWord(e.target.value)}
-          onInput={(e) => autoResizeInput(e.target)}  // Trigger resizing on input
-          style={{ resize: 'none' }} // Disable manual resizing (optional)
-        />
+          {/* Compound word input */}
+          <input
+            type="text"
+            placeholder="Compound Word"
+            className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
+            value={compoundWord}
+            onChange={(e) => setCompoundWord(e.target.value)}
+            onInput={(e) => autoResizeInput(e.target)}  // Trigger resizing on input
+            style={{ resize: 'none' }} // Disable manual resizing (optional)
+          />
 
-        {/* Translation input */}
-        <input
-          type="text"
-          placeholder="Translation"
-          className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
-          value={translation}
-          onChange={(e) => setTranslation(e.target.value)}
-          onInput={(e) => autoResizeInput(e.target)}  // Trigger resizing on input
-          style={{ resize: 'none' }} // Disable manual resizing (optional)
-        />
+          {/* Translation input */}
+          <input
+            type="text"
+            placeholder="Translation"
+            className="p-3 mb-4 border rounded w-full focus:outline-none focus:ring focus:ring-blue-300"
+            value={translation}
+            onChange={(e) => setTranslation(e.target.value)}
+            onInput={(e) => autoResizeInput(e.target)}  // Trigger resizing on input
+            style={{ resize: 'none' }} // Disable manual resizing (optional)
+          />
 
-        {/* Sub-words section */}
-        <div className="mb-4">
-          <h3 className="font-semibold">Sub-Words</h3>
-          <div className="flex flex-wrap mb-2">
-            {subWords.map((subWord, index) => (
-              <div key={index} className="flex flex-col items-start border p-4 m-2 rounded-lg bg-gray-50 shadow-md">
-                {/* Sub-word and translation inputs */}
-                <input
-                  type="text"
-                  placeholder="Sub-Word"
-                  className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
-                  value={subWord.word}
-                  onChange={(e) => updateSubWord(index, "word", e.target.value)}
-                  onInput={(e) => autoResizeInput(e.target)}
-                />
-                <input
-                  type="text"
-                  placeholder="Translation"
-                  className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
-                  value={subWord.translation}
-                  onChange={(e) => updateSubWord(index, "translation", e.target.value)}
-                  onInput={(e) => autoResizeInput(e.target)}
-                />
-
-                <select
-                  className="p-3 border rounded mb-1 focus:outline-none focus:ring focus:ring-blue-300"
-                  value={subWord.stays}
-                  onChange={(e) => updateSubWord(index, "stays", e.target.value === "true")}
-                >
-                  <option value="true">Stays</option>
-                  <option value="false">Changed</option>
-                </select>
-
-                {subWord.stays === false && (
+          {/* Sub-words section */}
+          <div className="mb-4">
+            <h3 className="font-semibold">Sub-Words</h3>
+            <div className="flex flex-wrap mb-2">
+              {subWords.map((subWord, index) => (
+                <div key={index} className="flex flex-col items-start border p-4 m-2 rounded-lg bg-gray-50 shadow-md">
+                  {/* Sub-word and translation inputs */}
                   <input
                     type="text"
-                    placeholder="Original Word"
+                    placeholder="Sub-Word"
                     className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
-                    value={subWord.original}
-                    onChange={(e) => updateSubWord(index, "original", e.target.value)}
+                    value={subWord.word}
+                    onChange={(e) => updateSubWord(index, "word", e.target.value)}
                     onInput={(e) => autoResizeInput(e.target)}
                   />
-                )}
+                  <input
+                    type="text"
+                    placeholder="Translation"
+                    className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
+                    value={subWord.translation}
+                    onChange={(e) => updateSubWord(index, "translation", e.target.value)}
+                    onInput={(e) => autoResizeInput(e.target)}
+                  />
 
-                {index === subWords.length - 1 && (
                   <select
-                    className="p-3 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-                    value={subWord.gender}
-                    onChange={(e) => updateSubWord(index, "gender", e.target.value)}
+                    className="p-3 border rounded mb-1 focus:outline-none focus:ring focus:ring-blue-300"
+                    value={subWord.stays}
+                    onChange={(e) => updateSubWord(index, "stays", e.target.value === "true")}
                   >
-                    <option value="das">Das</option>
-                    <option value="der">Der</option>
-                    <option value="die">Die</option>
+                    <option value="true">Stays</option>
+                    <option value="false">Changed</option>
                   </select>
-                )}
 
-                <button
-                  onClick={() => deleteSubWord(index)}
-                  className="mt-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  🗑️
-                </button>
-              </div>
-            ))}
+                  {subWord.stays === false && (
+                    <input
+                      type="text"
+                      placeholder="Original Word"
+                      className="p-3 border rounded mb-1 min-w-[100px] transition-all focus:outline-none focus:ring focus:ring-blue-300"
+                      value={subWord.original}
+                      onChange={(e) => updateSubWord(index, "original", e.target.value)}
+                      onInput={(e) => autoResizeInput(e.target)}
+                    />
+                  )}
 
-            <button
-              onClick={addSubWord}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              ➕
-            </button>
+                  {index === subWords.length - 1 && (
+                    <select
+                      className="p-3 border rounded focus:outline-none focus:ring focus:ring-blue-300"
+                      value={subWord.gender}
+                      onChange={(e) => updateSubWord(index, "gender", e.target.value)}
+                    >
+                      <option value="das">Das</option>
+                      <option value="der">Der</option>
+                      <option value="die">Die</option>
+                    </select>
+                  )}
+
+                  <button
+                    onClick={() => deleteSubWord(index)}
+                    className="mt-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              ))}
+
+              <button
+                onClick={addSubWord}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                ➕
+              </button>
+            </div>
           </div>
-        </div>
 
-        <button
-          onClick={saveCompoundWord}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          {editingIndex !== null ? "💾 Update" : "💾 Save"}
-        </button>
-      </div>
+          <button
+            onClick={saveCompoundWord}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            {editingIndex !== null ? "💾 Update" : "💾 Save"}
+          </button>
+        </div>
+      )}
+      <button onClick={() => setShowForm(!showForm)} className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        {showForm ? "Hide Form" : "Show Form"}
+      </button>
 
       {/* Display of saved compound words */}
       <div>
