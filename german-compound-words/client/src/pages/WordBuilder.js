@@ -152,7 +152,8 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
 
       return [newWord, ...prevSavedWords];
     });
-
+    // Save new word to set in supabase
+    
     setEditingIndex(null);
     setCompoundWord("");
     setTranslation("");
