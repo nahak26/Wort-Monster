@@ -10,17 +10,48 @@ export const fetchAllWordSets = async () => {
 };
 
 // Fetch word set by set id
-export const fetchWordSetsById = async (setId) => {
-  const response = await fetch(`${API_URL}/${setId}`);
+export const fetchWordSetById = async (setId) => {
+  const response = await fetch(`${API_URL}/get?id=${setId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word set: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch word sets by set name
+export const fetchWordSetByName = async (setName) => {
+  const response = await fetch(`${API_URL}/get?name=${setName}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word set: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch users owned word sets from the database
+export const fetchWordSetsByCreators = async (ids) => {
+  const query = ids.join(",");
+
+  const response = await fetch(`${API_URL}/creator?ids=${query}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch word sets: ${response.statusText}`);
   }
   return await response.json();
 };
 
-// Fetch user's word sets from the database
-export const fetchWordSets = async (userId) => {
-  const response = await fetch(`${API_URL}/user/${userId}`);
+// Fetch users owned word sets from the database
+export const fetchWordSetsByUser = async (id) => {
+  const response = await fetch(`${API_URL}/user/${id}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word sets: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch word sets containing words by ids
+export const fetchWordSetsContainWords = async (ids) => {
+  const query = ids.join(",");
+
+  const response = await fetch(`${API_URL}/get/wordIds?ids=${query}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch word sets: ${response.statusText}`);
   }
@@ -30,9 +61,9 @@ export const fetchWordSets = async (userId) => {
 // Create a new word set
 export const createWordSet = async (setData) => {
   const response = await fetch(`${API_URL}/create`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(setData),
   });
@@ -43,11 +74,11 @@ export const createWordSet = async (setData) => {
 };
 
 // Update a word set
-export const updateWordSet = async (set_id, setData) => {
-  const response = await fetch(`${API_URL}/update/${set_id}`, {
-    method: 'POST',
+export const updateWordSet = async (setId, setData) => {
+  const response = await fetch(`${API_URL}/update/${setId}`, {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(setData),
   });
@@ -57,11 +88,23 @@ export const updateWordSet = async (set_id, setData) => {
   return await response.json();
 };
 
-// Search for public word sets
-export const searchPublicWordSets = async (query, filter) => {
-  const response = await fetch(`${API_URL}/getall`);
+export const addUserAsSetViewer = async (userId, setId) => {
+  const response = await fetch(`${API_URL}/addviewer?userId=${userId}&setId=${setId}`, {
+    method: "POST",
+  });
   if (!response.ok) {
-    throw new Error(`Failed to fetch words: ${response.statusText}`);
+    throw new Error(`Failed to add user as viewer: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Delete a word set by id
+export const deleteWordSet = async (setId) => {
+  const response = await fetch(`${API_URL}/${setId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete words: ${response.statusText}`);
   }
   return await response.json();
 };

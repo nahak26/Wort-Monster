@@ -1,13 +1,23 @@
 import express from "express";
 import { upsertUser } from "../db/upsert_user.js";
-import { getUser } from "../db/get_user.js";
+import { getUserById, getUsersByName } from "../db/get_user.js";
 
 const router = express.Router();
 
 router.get('/:uid', async (req, res) => {
   try {
     const user_id = req.params.uid;
-    const data = await getUser(user_id);
+    const data = await getUserById(user_id);
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/name/:name', async (req, res) => {
+  try {
+    const name = req.params.name;
+    const data = await getUsersByName(name);
     res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });

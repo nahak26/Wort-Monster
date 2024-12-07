@@ -9,6 +9,7 @@ export const fetchAllCompoundWords = async () => {
   return await response.json();
 };
 
+// Fetch compound words by ids
 export const fetchCompoundWords = async (ids) => {
   const query = ids.join(",");
 
@@ -19,7 +20,7 @@ export const fetchCompoundWords = async (ids) => {
   return await response.json();
 };
 
-// Fetch all subwords with ids
+// Fetch all subwords by ids
 export const fetchSubWords = async (ids) => {
   const query = ids.join(",");
 
@@ -33,6 +34,15 @@ export const fetchSubWords = async (ids) => {
 // Fetch one word by ID
 export const fetchWord = async (wordId) => {
   const response = await fetch(`${API_URL}/get/${wordId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch word: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+// Fetch words containing query data
+export const fetchWordsByQuery = async (query) => {
+  const response = await fetch(`${API_URL}/search/${query}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch word: ${response.statusText}`);
   }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
-import { fetchWordSets, createWordSet, updateWordSet, searchPublicWordSets } from "../service/wordSetService.js";
+import { fetchWordSetsByUser, createWordSet, updateWordSet, addUserAsSetViewer } from "../service/wordSetService.js";
+import { searchPublicWordSets } from "../lib/search.js"
 import { auth } from "../firebaseConfig.js";
 
 const WordSetManager = ({ user }) => {
@@ -26,8 +27,8 @@ const WordSetManager = ({ user }) => {
   useEffect(() => {
     const loadWordSets = async () => {
       try {
-        console.log("current user:", user);
-        const sets = await fetchWordSets(user.id); // Pass user ID to fetch user's sets
+        //console.log("current user:", user);
+        const sets = await fetchWordSetsByUser(user.id); // Pass user ID to fetch user's sets
         setWordSets(sets);
       } catch (error) {
         console.error("Failed to fetch word sets:", error.message);
@@ -40,6 +41,7 @@ const WordSetManager = ({ user }) => {
   const handleSearch = async () => {
     try {
       const results = await searchPublicWordSets(searchQuery, searchFilter);
+      //console.log("search results: ", results);
       setSearchResults(results);
     } catch (error) {
       console.error("Failed to search public word sets:", error.message);

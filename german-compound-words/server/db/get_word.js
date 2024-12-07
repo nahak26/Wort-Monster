@@ -49,3 +49,13 @@ export async function getSubWords(sub_word_ids) {
   if (error) return null;
   return data;
 }
+
+export async function getMatchingWords(word) {
+  const { data, error } = await supabase
+    .from("dictionary")
+    .select("id")
+    .or(`word.ilike.%${word}%,sub_words.ilike.%${word}%`);
+
+  if (error) return null;
+  return data;
+}
