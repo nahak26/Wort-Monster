@@ -153,7 +153,7 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
       return [newWord, ...prevSavedWords];
     });
     // Save new word to set in supabase
-    
+
     setEditingIndex(null);
     setCompoundWord("");
     setTranslation("");
@@ -323,9 +323,6 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
           </button>
         </div>
       )}
-      <button onClick={() => setShowForm(!showForm)} className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-        {showForm ? "Hide Form" : "Show Form"}
-      </button>
 
       {/* Display of saved compound words */}
       <div>
