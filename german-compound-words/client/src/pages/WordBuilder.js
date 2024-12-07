@@ -86,7 +86,7 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
         //transform all words form database format to client format
         const transformedWords = words.map((word) => transformWord(word, subwords));
         
-        console.log(transformedWords);
+        //console.log(transformedWords);
         setSavedWords(transformedWords);
       } catch (error) {
         console.error("Failed to fetch words:", error.message);
@@ -94,7 +94,7 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
     };
   
     loadWords();
-  }, []);
+  }, [wordSet]);
 
   // Feature:  Hover over sub-word shows sub-word in full compound word section
   const highlightCompoundWord = (compoundWord, subWord, isHovered) => {

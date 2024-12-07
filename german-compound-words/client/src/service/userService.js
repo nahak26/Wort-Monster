@@ -9,6 +9,15 @@ export const userCheck = async (uid) => {
   return await response.json();
 }
 
+//fetch users by name
+export const fetchUsersByName = async (name) => {
+  const response = await fetch(`${API_URL}/name/${name}`);
+  if (!response.ok) {
+    return null;
+  }
+  return await response.json();
+}
+
 export const userLogin = async (userData) => {
   const response = await fetch(`${API_URL}/sync`, {
     method: "POST",

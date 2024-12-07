@@ -1,5 +1,5 @@
 import express from 'express';
-import { getWord, getAllCompoundWords, getCompoundWords, getSubWords } from '../db/get_word.js';
+import { getWord, getAllCompoundWords, getCompoundWords, getSubWords, getMatchingWords } from '../db/get_word.js';
 import { insertWord } from '../db/insert_word.js';
 import { deleteWord } from '../db/delete_word.js';
 import { updateWord } from '../db/update_word.js';
@@ -50,6 +50,16 @@ router.get('/get/:id', async (req, res) => {
   }
 });
 
+router.get('/search/:word', async (req, res) => {
+  try {
+    const word = req.params.word;
+    const data = await getMatchingWords(word);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post(['/upsert', '/create'], async (req, res) => {
   try {
     const { compoundWord, translation, subWords, userId } = req.body;
@@ -69,10 +79,10 @@ router.post(['/upsert', '/create'], async (req, res) => {
     //get all subword ids
     const subWordIds = [];
     for (const subWord of subWords) {
-      console.log("subword data: ", subWord);
+      //console.log("subword data: ", subWord);
       const { original, translation } = subWord;
       const data = await upsertWord(original, null, translation, gender, 0, null, userId);
-      console.log("subword data: ", data);
+      //console.log("subword data: ", data);
       subWordIds.push(data.id);
     }
     //console.log("subword ids:", subWordIds);
