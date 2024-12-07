@@ -143,7 +143,7 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
     const newWord = { compoundWord, translation, subWords};
     console.log(newWord);
     const data = upsertWord(newWord);
-
+    
     setSavedWords((prevSavedWords) => {
       // Check if the word is already saved
       if (prevSavedWords.some((word) => word.compoundWord === compoundWord)) {
@@ -331,9 +331,9 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
         <h2 className="text-2xl font-semibold mb-4">Saved Compound Words</h2>
         <button
           onClick={onReturn}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-red-500 text-white rounded"
         >
-          Save Set
+          Return to Home
         </button>
         {/* Speech Speed Control */}
         <div className="my-4">
