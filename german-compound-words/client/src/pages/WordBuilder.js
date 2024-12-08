@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { readAloud } from '../lib/readAloud.js';
 import { transformWord } from "../lib/wordFormatting.js";
 import { fetchCompoundWords, upsertWord, fetchSubWords, deleteWord } from "../service/wordService.js";
+import { addWordToSet } from "../service/wordSetService.js";
 import { useUser } from "../context/UserContext.js";
 
 const highlightChanges = (word, original) => {
@@ -115,7 +116,7 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
     );
   };
 
-  const saveCompoundWord = () => {
+  const saveCompoundWord = async () => {
     // Validation for mandatory fields
     if (!compoundWord.trim() || !translation.trim()) {
       alert("Compound Word and Translation are required.");
@@ -141,8 +142,10 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
     }
 
     const newWord = { compoundWord, translation, subWords};
-    console.log(newWord);
-    const data = upsertWord(newWord);
+    const wordData = await upsertWord(newWord);
+    if (!wordSet.words.includes(wordData.id)) {
+      const newWordIds = await addWordToSet(wordSet.id, wordData.id);
+    }
     
     setSavedWords((prevSavedWords) => {
       // Check if the word is already saved
@@ -179,11 +182,11 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
 
   const deleteCompoundWord = async (index) => {
     const word = savedWords[index];
-    console.log("delete word:", word);
-    console.log("current user:", user);
-    console.log("target word owner:", word.owner);
+    //console.log("delete word:", word);
+    //console.log("current user:", user);
+    //console.log("target word owner:", word.owner);
     if (word.owner === user.id) {
-      console.log("deleting word with id:", word.id);
+      //console.log("deleting word with id:", word.id);
       const response = await deleteWord(word.id);
       console.log("word deleted!:", response);
     }

@@ -20,16 +20,28 @@ export async function updateWordSet(id, name, words) {
   return data;
 }
 
+export async function addWordToSet(id, word_id) {
+  const { data, error } = await supabase.rpc("append_to_array", {
+    table_name: "word_sets",
+    row_id: id,
+    column_name: "words",
+    element: word_id
+  });
+
+  if (error) {
+    console.error("Error adding word into set:", error);
+    return error;
+  }
+  return data;
+}
+
 export async function addViewerToSet(id, user_id) {
-  const { data, error } = await supabase
-    .from("word_sets")
-    .update({
-      viewers: supabase.sql`array(
-      SELECT DISTINCT UNNEST(viewers || ${userId}::bigint[])
-    )`,
-    })
-    .eq("id", setId)
-    .select();
+  const { data, error } = await supabase.rpc("append_to_array", {
+    table_name: "word_sets",
+    row_id: id,
+    column_name: "viewers",
+    element: user_id
+  });
 
   if (error) {
     console.error("Error adding viewer into set:", error);
