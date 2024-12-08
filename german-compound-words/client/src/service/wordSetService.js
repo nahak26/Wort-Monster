@@ -88,7 +88,17 @@ export const updateWordSet = async (setId, setData) => {
   return await response.json();
 };
 
-export const addUserAsSetViewer = async (userId, setId) => {
+export const addWordToSet = async (setId, wordId) => {
+  const response = await fetch(`${API_URL}/addword?wordId=${wordId}&setId=${setId}`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to add word into set: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+export const addUserAsSetViewer = async (setId, userId) => {
   const response = await fetch(`${API_URL}/addviewer?userId=${userId}&setId=${setId}`, {
     method: "POST",
   });

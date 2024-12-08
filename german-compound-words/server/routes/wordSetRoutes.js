@@ -1,7 +1,7 @@
 import express from "express";
 import { getAllSets, getSetById, getSetByName, getSetsByCreators, getUserSets, getSetsContainIds } from "../db/get_word_set.js";
 import { insertWordSet } from "../db/insert_word_set.js"
-import { updateWordSet, addViewerToSet } from "../db/update_word_set.js";
+import { updateWordSet, addViewerToSet, addWordToSet } from "../db/update_word_set.js";
 import { deleteWordSet } from "../db/delete_word_set.js";
 
 const router = express.Router();
@@ -83,10 +83,20 @@ router.post("/update/:id", async (req, res) => {
   }
 });
 
+router.post("/addword", async (req, res) => {
+  try {
+    const { setId, wordId } = req.query;
+    const data = await addWordToSet(Number(setId), Number(wordId));
+    res.status(201).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post("/addviewer", async (req, res) => {
   try {
     const { userId, setId } = req.query;
-    const data = await addViewerToSet(setId, userId);
+    const data = await addViewerToSet(Number(setId), Number(userId));
     res.status(201).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });

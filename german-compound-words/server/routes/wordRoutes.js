@@ -80,8 +80,10 @@ router.post(['/upsert', '/create'], async (req, res) => {
     const subWordIds = [];
     for (const subWord of subWords) {
       //console.log("subword data: ", subWord);
-      const { original, translation } = subWord;
-      const data = await upsertWord(original, null, translation, gender, 0, null, userId);
+      const { word, original, stays, translation } = subWord;
+      const ori_word = (stays) ? word : original;
+      const data = await upsertWord(ori_word, null, translation, gender, 0, null, userId);
+        
       //console.log("subword data: ", data);
       subWordIds.push(data.id);
     }

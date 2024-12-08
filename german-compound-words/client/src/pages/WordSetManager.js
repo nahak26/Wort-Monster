@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import WordBuilder from "./WordBuilder.js"; // Import WordBuilder
-import { fetchWordSetsByUser, createWordSet, updateWordSet, addUserAsSetViewer } from "../service/wordSetService.js";
+import { fetchWordSetsByUser, createWordSet, updateWordSet, addUserAsSetViewer, deleteWordSet } from "../service/wordSetService.js";
 import { searchPublicWordSets } from "../lib/search.js"
 import { auth } from "../firebaseConfig.js";
 
@@ -110,13 +110,14 @@ const WordSetManager = ({ user }) => {
       );
 
       // Optionally, make a call to your backend to delete the word set
-      updateWordSet(wordSetId)
+      deleteWordSet(wordSetId)
         .then(() => {
           console.log(`Word Set with ID ${wordSetId} deleted successfully.`);
         })
         .catch((error) => {
           console.error("Failed to delete Word Set:", error.message);
         });
+      window.location.reload();
     }
   };
 
