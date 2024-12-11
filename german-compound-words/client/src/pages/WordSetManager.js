@@ -77,7 +77,7 @@ const WordSetManager = ({ user }) => {
     setisEditing(false); // Set to View Only
   }
 
-  const handleEditWordSetName = (wordSetId) => {
+  const handleEditWordSetName = async (wordSetId) => {
     // Prompt user for the new word set name
     const newName = prompt("Enter the new name for your Word Set:");
   
@@ -86,7 +86,13 @@ const WordSetManager = ({ user }) => {
       alert("Word Set name cannot be empty.");
       return;
     }
-  
+
+    const currWordSet = wordSets.find((set)=> set.id === wordSetId);
+    const wordSetWords = currWordSet.words;
+    const wordSetData = {newName, wordSetWords};
+    if (currWordSet.owner === user.id) {
+      const response = await updateWordSet(wordSetId, wordSetData);
+    }
     // Update the state immutably
     setWordSets((prevWordSets) =>
       prevWordSets.map((wordSet) =>

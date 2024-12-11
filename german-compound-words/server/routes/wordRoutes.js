@@ -7,7 +7,7 @@ import { upsertWord } from '../db/upsert_word.js';
 
 const router = express.Router();
 
-const genderMapping = ["der", "die", "das"];
+const genderMapping = {1: "der", 2: "die", 3: "das"};
 
 router.get('/getall', async (req, res) => {
   try {
@@ -63,7 +63,7 @@ router.get('/search/:word', async (req, res) => {
 router.post(['/upsert', '/create'], async (req, res) => {
   try {
     const { compoundWord, translation, subWords, userId } = req.body;
-
+    
     //need update on pos setting
     const subWordString = subWords.map((subWord) => {
       const { word } = subWord;

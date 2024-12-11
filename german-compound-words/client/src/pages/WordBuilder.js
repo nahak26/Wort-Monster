@@ -140,8 +140,9 @@ const WordBuilder = ({ wordSet, onReturn, isEditing }) => {
         subWord.gender = "das"; // Default to "das" if not selected
       }
     }
-
-    const newWord = { compoundWord, translation, subWords};
+    const userId = user.id;
+    const newWord = { compoundWord, translation, subWords, userId};
+    console.log("word:", newWord);
     const wordData = await upsertWord(newWord);
     if (!wordSet.words.includes(wordData.id)) {
       const newWordIds = await addWordToSet(wordSet.id, wordData.id);
