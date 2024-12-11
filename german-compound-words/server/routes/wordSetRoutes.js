@@ -75,7 +75,7 @@ router.post("/create", async (req, res) => {
 router.post("/update/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, words } = req.body;
+    const { newName: name, wordSetWords: words } = req.body;
     const data = await updateWordSet(id, name, words);
     res.status(201).json(data);
   } catch (error) {
